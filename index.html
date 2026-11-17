@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#172d45">
+<title>Research Academy — Learn to read research papers</title>
+<style>
+:root{
+  --navy:#172d45; --navy-2:#213e5c; --ink:#1d2b3a; --muted:#627387;
+  --paper:#ffffff; --canvas:#eef3f7; --line:#d9e2eb; --blue:#3267ad;
+  --blue-soft:#e7eff9; --yellow:#f3dc70; --yellow-soft:#fff7d6;
+  --green:#2e765b; --green-soft:#e5f2ec; --red:#a64d4d;
+  --shadow:0 12px 35px rgba(25,47,70,.08);
+  --radius:18px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--canvas);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.55}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #e2bd37;outline-offset:3px}
+a{color:var(--blue);text-decoration-thickness:1px;text-underline-offset:3px}
+.app{min-height:100vh;display:grid;grid-template-columns:248px minmax(0,1fr)}
+.sidebar{background:var(--navy);color:#eaf0f6;padding:26px 18px 20px;display:flex;flex-direction:column;min-height:100vh;position:sticky;top:0;height:100vh}
+.brand{display:flex;align-items:center;gap:12px;padding:0 9px 30px}
+.brand-mark{width:39px;height:39px;border:1px solid rgba(255,255,255,.35);border-radius:11px;display:grid;place-items:center;font-weight:850;font-size:20px;color:var(--yellow);position:relative}
+.brand-mark:after{content:"";position:absolute;width:9px;height:9px;background:var(--yellow);border-radius:2px;right:-4px;top:-4px}
+.brand-name{font-size:14px;font-weight:780;letter-spacing:.01em}
+.brand-sub{font-size:10px;color:#aab9c9;letter-spacing:.13em;margin-top:2px}
+.nav-caption{font-size:10px;letter-spacing:.14em;color:#8fa2b8;padding:0 12px 9px;margin-top:4px}
+.nav{display:grid;gap:5px}
+.nav-btn{border:0;background:transparent;color:#c7d3df;text-align:left;padding:11px 12px;border-radius:10px;display:flex;align-items:center;gap:12px;font-size:13px;font-weight:600;transition:background .15s,color .15s}
+.nav-btn:hover{background:rgba(255,255,255,.08);color:white}
+.nav-btn.active{background:#2a496a;color:white}
+.nav-icon{width:20px;text-align:center;color:#f3dc70;font-size:16px}
+.sidebar-bottom{margin-top:auto;border-top:1px solid rgba(255,255,255,.13);padding:19px 10px 3px}
+.side-note{font-size:12px;color:#b7c5d3;line-height:1.55}
+.side-note strong{display:block;color:white;font-size:12px;margin-bottom:4px}
+.main-shell{min-width:0}
+.topbar{height:66px;padding:0 38px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.78);display:flex;align-items:center;justify-content:space-between;gap:15px;position:sticky;top:0;z-index:10;backdrop-filter:blur(12px)}
+.crumbs{font-size:12px;color:var(--muted);display:flex;gap:9px;align-items:center}
+.crumbs strong{color:var(--ink);font-weight:700}
+.top-actions{display:flex;align-items:center;gap:12px}
+.local-save{font-size:11px;color:var(--green);display:flex;align-items:center;gap:6px}
+.local-save:before{content:"";width:7px;height:7px;background:#49a47b;border-radius:50%}
+.small-btn{border:1px solid var(--line);background:white;border-radius:8px;padding:8px 11px;font-size:11px;font-weight:700;color:var(--ink)}
+.small-btn:hover{border-color:#9db2c8;background:#f9fbfd}
+main{max-width:1320px;margin:0 auto;padding:32px 38px 80px}
+.hero{background:var(--navy);color:white;border-radius:22px;padding:38px 40px;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(280px,.8fr);gap:36px;align-items:center;overflow:hidden;position:relative;box-shadow:var(--shadow)}
+.hero:before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);background-size:34px 34px;mask-image:linear-gradient(90deg,black,transparent 78%);pointer-events:none}
+.hero-copy,.paper-demo{position:relative;z-index:1}
+.kicker{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#c1d0df;font-weight:750;margin:0 0 16px}
+.hero h1{font-size:clamp(35px,4.5vw,58px);line-height:1.02;letter-spacing:-.045em;max-width:600px;margin:0 0 17px;font-weight:820}
+.hero h1 span{color:var(--yellow);display:inline}
+.hero-copy>p:not(.kicker){font-size:15px;color:#d4e0eb;max-width:490px;margin:0 0 24px;line-height:1.7}
+.primary-btn{border:0;background:var(--yellow);color:#192c40;padding:12px 17px;border-radius:9px;font-weight:800;font-size:13px;box-shadow:0 4px 0 #c8ad43;transition:transform .15s,box-shadow .15s}
+.primary-btn:hover{transform:translateY(-1px);box-shadow:0 5px 0 #c8ad43}
+.secondary-btn{border:1px solid var(--line);background:white;color:var(--ink);padding:10px 14px;border-radius:9px;font-weight:700;font-size:12px}
+.secondary-btn:hover{background:#f7f9fb}
+.paper-demo{background:#fbfcfd;color:var(--ink);border-radius:13px;padding:21px 22px 19px;transform:rotate(1.1deg);box-shadow:0 18px 35px rgba(0,0,0,.2);max-width:390px;justify-self:end;width:100%}
+.paper-demo-top{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #dfe5ec;padding-bottom:10px;margin-bottom:13px;font-size:9px;letter-spacing:.12em;color:#7a8795;font-weight:800}
+.paper-demo h3{font-size:14px;line-height:1.35;margin:0 0 9px}
+.paper-demo p{font-family:Georgia,serif;font-size:12px;line-height:1.75;color:#4d5a68;margin:0}
+.marker{background:linear-gradient(transparent 40%,#f5df76 40%,#f5df76 92%,transparent 92%);padding:0 2px;color:#273447}
+.paper-note{margin-top:14px;padding-top:10px;border-top:1px dashed #d2dbe4;display:flex;gap:8px;align-items:flex-start;font-size:10px;color:#66788a}
+.paper-note b{color:#2d5e9d;white-space:nowrap}
+.section-heading{display:flex;justify-content:space-between;align-items:end;gap:15px;margin:32px 0 14px}
+.section-heading h2{font-size:19px;letter-spacing:-.025em;margin:0;font-weight:800}
+.section-heading p{font-size:12px;color:var(--muted);margin:4px 0 0}
+.text-link{border:0;background:transparent;color:var(--blue);font-size:12px;font-weight:750;padding:5px}
+.continue-strip{background:white;border:1px solid var(--line);border-radius:14px;padding:20px 22px;display:flex;align-items:center;justify-content:space-between;gap:18px}
+.continue-left{display:flex;align-items:center;gap:15px}
+.lesson-number{width:45px;height:45px;flex:0 0 45px;border-radius:12px;background:var(--yellow-soft);display:grid;place-items:center;color:#7a6417;font-weight:850;font-size:14px}
+.eyebrow{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:800;margin:0 0 4px}
+.continue-strip h3{font-size:16px;margin:0 0 3px}
+.continue-strip p{font-size:12px;color:var(--muted);margin:0}
+.home-columns{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(260px,.7fr);gap:24px;margin-top:25px}
+.path-panel,.practice-panel{background:white;border:1px solid var(--line);border-radius:14px;padding:21px 22px}
+.path-list{display:grid;gap:0;margin-top:14px}
+.path-row{display:grid;grid-template-columns:28px 1fr auto;gap:12px;align-items:start;padding:12px 0;border-top:1px solid #edf1f5}
+.path-dot{width:25px;height:25px;border-radius:50%;display:grid;place-items:center;background:#edf2f7;color:#4d6680;font-size:10px;font-weight:800}
+.path-row.current .path-dot{background:var(--yellow);color:#24354a}
+.path-row strong{font-size:12px;display:block;margin:1px 0 2px}
+.path-row span{font-size:11px;color:var(--muted)}
+.path-state{font-size:10px!important;color:#7d8a98!important;white-space:nowrap}
+.practice-panel{background:#e8eff7;border-color:#d5e0ec}
+.practice-panel h3{font-size:15px;margin:0 0 8px}
+.practice-panel p{font-size:12px;color:#506579;margin:0 0 14px}
+.practice-question{font-size:13px;font-weight:700;color:#253c56;line-height:1.5}
+.practice-answer{display:flex;gap:8px;margin-top:14px}
+.practice-answer input{min-width:0;flex:1;border:1px solid #c7d5e3;border-radius:8px;padding:9px 10px;font-size:12px;background:white}
+.page-title{margin:5px 0 25px}
+.page-title .kicker{color:var(--blue);margin-bottom:9px}
+.page-title h1{font-size:34px;letter-spacing:-.04em;line-height:1.1;margin:0 0 9px}
+.page-title p{font-size:14px;color:var(--muted);margin:0;max-width:720px}
+.lesson-topline{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:14px;font-size:11px;color:var(--muted)}
+.lesson-progress{height:5px;background:#dce5ed;border-radius:99px;overflow:hidden;margin-bottom:26px}
+.lesson-progress span{height:100%;display:block;background:var(--blue);width:16.6%;transition:width .2s}
+.lesson-layout{display:grid;grid-template-columns:minmax(0,1fr) 245px;gap:24px;align-items:start}
+.lesson-main{background:white;border:1px solid var(--line);border-radius:16px;padding:30px;min-width:0}
+.lesson-main h1{font-size:31px;letter-spacing:-.04em;line-height:1.12;margin:0 0 10px}
+.lesson-lead{font-size:14px;color:var(--muted);margin:0 0 25px;max-width:700px}
+.step-tabs{display:flex;gap:7px;overflow:auto;padding:2px 0 15px;margin-bottom:20px;border-bottom:1px solid var(--line)}
+.step-tab{flex:0 0 auto;border:1px solid var(--line);background:#f8fafc;color:#65778a;border-radius:7px;padding:7px 10px;font-size:10px;font-weight:750}
+.step-tab.active{background:var(--navy);border-color:var(--navy);color:white}
+.lesson-content h2{font-size:20px;letter-spacing:-.025em;margin:0 0 12px}
+.lesson-content p{font-size:14px;color:#425367;line-height:1.75}
+.callout{border-left:4px solid var(--yellow);background:#fff9df;padding:14px 16px;margin:18px 0;border-radius:0 9px 9px 0}
+.callout p{margin:0;color:#4f4a35;font-size:13px}
+.simple-compare{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0}
+.compare-item{padding:15px;border:1px solid var(--line);border-radius:10px;background:#fbfcfd}
+.compare-item h3{font-size:12px;margin:0 0 6px;color:var(--blue)}
+.compare-item p{font-size:12px;margin:0;line-height:1.65}
+.example-paper{background:#fbfcfd;border:1px solid #dfe6ee;border-radius:10px;padding:19px 20px;margin:16px 0}
+.example-paper .paper-label{font-size:9px;color:#718397;font-weight:800;letter-spacing:.13em;text-transform:uppercase;margin-bottom:10px}
+.example-paper p{font-family:Georgia,serif;color:#3e4d5c;font-size:13px;line-height:1.85;margin:0}
+.six-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0}
+.six-item{border:1px solid var(--line);border-radius:9px;padding:12px 13px;background:#fbfcfd}
+.six-item b{display:block;font-size:11px;color:var(--blue);margin-bottom:4px}
+.six-item span{font-size:12px;color:#526274;line-height:1.55}
+.quiz-options{display:grid;gap:9px;margin:17px 0}
+.quiz-option{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid var(--line);border-radius:9px;background:white;font-size:13px;color:#35475a}
+.quiz-option:hover{border-color:#9eb4ca;background:#f8fbff}
+.quiz-option input{margin-top:3px;accent-color:var(--blue)}
+.feedback{display:none;padding:13px 15px;border-radius:9px;font-size:12px;margin:12px 0}
+.feedback.show{display:block}
+.feedback.good{background:var(--green-soft);color:#245a43}
+.feedback.try{background:#fff4e3;color:#765523}
+.write-box{width:100%;min-height:135px;border:1px solid #cfdbe6;border-radius:10px;padding:13px 14px;resize:vertical;font-size:13px;line-height:1.6;background:#fcfdff;color:var(--ink)}
+.lesson-actions{display:flex;justify-content:space-between;gap:10px;align-items:center;border-top:1px solid var(--line);padding-top:19px;margin-top:24px}
+.lesson-aside{display:grid;gap:14px}
+.aside-box{background:white;border:1px solid var(--line);border-radius:12px;padding:16px}
+.aside-box h3{font-size:12px;margin:0 0 9px}
+.aside-box p,.aside-box li{font-size:11px;color:var(--muted);line-height:1.65}
+.aside-box ul{padding-left:17px;margin:0}
+.help-note{background:#e7eff9;border-color:#d5e2f0}
+.help-note p{color:#405c7a;margin:0}
+.course-week{background:white;border:1px solid var(--line);border-radius:12px;margin:12px 0;overflow:hidden}
+.week-head{padding:15px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;background:#f8fafc;border-bottom:1px solid #e7edf3}
+.week-head h3{font-size:14px;margin:0}
+.week-head p{font-size:11px;color:var(--muted);margin:3px 0 0}
+.week-tag{font-size:10px;font-weight:750;color:#5b6e83;background:#eaf0f6;border-radius:20px;padding:5px 9px;white-space:nowrap}
+.class-row{display:grid;grid-template-columns:34px 1fr auto;gap:12px;align-items:center;padding:12px 18px;border-top:1px solid #eff2f5}
+.class-row:first-child{border-top:0}
+.class-index{width:28px;height:28px;border-radius:8px;background:#edf2f7;color:#5d7085;display:grid;place-items:center;font-size:10px;font-weight:800}
+.class-row.ready .class-index{background:var(--yellow);color:#5d4c13}
+.class-row strong{font-size:12px;display:block}
+.class-row small{font-size:11px;color:var(--muted)}
+.class-row button{font-size:10px;font-weight:750;border:1px solid var(--line);background:white;border-radius:7px;padding:7px 10px;color:var(--blue)}
+.class-row button:hover{background:var(--blue-soft)}
+.paper-list{display:grid;gap:0;background:white;border:1px solid var(--line);border-radius:13px;overflow:hidden}
+.paper-row{padding:17px 19px;border-top:1px solid #edf1f5;display:grid;grid-template-columns:1fr auto;gap:15px;align-items:center}
+.paper-row:first-child{border-top:0}
+.paper-row h3{font-size:13px;margin:0 0 4px}
+.paper-row p{font-size:11px;color:var(--muted);margin:0 0 7px;max-width:760px}
+.paper-meta{display:flex;gap:7px;flex-wrap:wrap}
+.paper-tag{font-size:9px;color:#506b87;background:#edf3f8;border-radius:20px;padding:4px 8px;font-weight:700}
+.paper-row a{font-size:11px;font-weight:750;white-space:nowrap}
+.note-form{background:white;border:1px solid var(--line);border-radius:14px;padding:22px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field{display:grid;gap:6px}
+.field.full{grid-column:1/-1}
+.field label{font-size:11px;font-weight:750;color:#43566a}
+.field input,.field textarea{border:1px solid #d2dce6;border-radius:8px;padding:10px 11px;font-size:12px;background:#fcfdff;color:var(--ink);width:100%}
+.field textarea{min-height:75px;resize:vertical}
+.form-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:17px}
+.glossary-search{width:100%;max-width:520px;border:1px solid #cbd7e3;border-radius:9px;background:white;padding:12px 14px;font-size:13px;margin:12px 0 18px}
+.glossary-list{display:grid;grid-template-columns:1fr 1fr;gap:0 22px;background:white;border:1px solid var(--line);border-radius:13px;padding:6px 18px}
+.term{padding:13px 0;border-bottom:1px solid #edf1f5}
+.term strong{font-size:12px;color:#2d5d96}
+.term p{font-size:11px;color:var(--muted);margin:4px 0 0;line-height:1.6}
+.progress-banner{background:var(--navy);color:white;padding:24px;border-radius:14px;display:flex;justify-content:space-between;align-items:center;gap:15px}
+.progress-banner h2{font-size:22px;margin:0 0 5px}
+.progress-banner p{font-size:12px;color:#cad7e3;margin:0}
+.progress-count{font-size:32px;font-weight:850;color:var(--yellow)}
+.progress-track{height:8px;background:#dce5ed;border-radius:30px;overflow:hidden;margin:20px 0 7px}
+.progress-track span{display:block;height:100%;background:var(--blue);width:0}
+.skill-levels{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}
+.skill-level{padding:14px;border:1px solid var(--line);border-radius:10px;background:white}
+.skill-level b{font-size:11px;display:block;margin-bottom:5px}
+.skill-level p{font-size:10px;color:var(--muted);margin:0;line-height:1.55}
+.skill-level.active{border-color:#d9c45e;background:#fff9df}
+.toast{position:fixed;bottom:22px;right:22px;background:var(--navy);color:white;padding:11px 15px;border-radius:9px;font-size:12px;box-shadow:var(--shadow);opacity:0;transform:translateY(8px);transition:.2s;pointer-events:none;z-index:40}
+.toast.show{opacity:1;transform:translateY(0)}
+.empty-state{padding:28px;text-align:center;color:var(--muted);font-size:13px}
+.footer-note{font-size:10px;color:#8291a1;margin-top:26px;text-align:center}
+@media(max-width:980px){
+  .app{grid-template-columns:210px minmax(0,1fr)}
+  .sidebar{padding-left:12px;padding-right:12px}
+  main{padding:26px 24px 75px}
+  .topbar{padding:0 24px}
+  .hero{padding:30px;gap:22px}
+  .lesson-layout{grid-template-columns:minmax(0,1fr) 210px}
+}
+@media(max-width:760px){
+  .app{display:block}
+  .sidebar{display:none}
+  .topbar{height:57px;padding:0 16px}
+  .local-save{display:none}
+  main{padding:22px 15px 100px}
+  .hero{grid-template-columns:1fr;padding:27px 22px;border-radius:16px}
+  .hero h1{font-size:40px}
+  .paper-demo{justify-self:start;max-width:100%;transform:none}
+  .home-columns{grid-template-columns:1fr}
+  .continue-strip{align-items:flex-start}
+  .continue-strip>.primary-btn{align-self:center;white-space:nowrap}
+  .lesson-layout{grid-template-columns:1fr}
+  .lesson-aside{grid-template-columns:1fr 1fr}
+  .lesson-main{padding:22px 17px}
+  .lesson-main h1{font-size:27px}
+  .simple-compare,.six-grid,.glossary-list{grid-template-columns:1fr}
+  .skill-levels{grid-template-columns:1fr 1fr}
+  .form-grid{grid-template-columns:1fr}
+  .field.full{grid-column:auto}
+  .paper-row{grid-template-columns:1fr}
+  .paper-row a{justify-self:start}
+  .progress-banner{align-items:flex-start}
+  .week-head{align-items:flex-start}
+  .top-actions .small-btn{padding:7px 9px}
+  .mobile-nav{display:grid!important}
+}
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:20;background:rgba(255,255,255,.96);border-top:1px solid var(--line);grid-template-columns:repeat(5,1fr);padding:7px 5px calc(7px + env(safe-area-inset-bottom));backdrop-filter:blur(12px)}
+.mobile-nav button{border:0;background:transparent;color:#6b7c8e;font-size:9px;font-weight:700;padding:5px 2px;display:grid;justify-items:center;gap:3px}
+.mobile-nav button span{font-size:17px;line-height:1.2}
+.mobile-nav button.active{color:var(--blue)}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+@media print{
+  .sidebar,.topbar,.mobile-nav,.top-actions,.lesson-actions,.form-actions,.small-btn,.primary-btn,.secondary-btn{display:none!important}
+  body,.app,main{background:white!important;display:block!important;padding:0!important}
+  .note-form,.lesson-main{border:0!important;box-shadow:none!important}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">R</div>
+      <div><div class="brand-name">Research Academy</div><div class="brand-sub">READ WITH CONFIDENCE</div></div>
+    </div>
+    <div class="nav-caption">YOUR LEARNING SPACE</div>
+    <nav class="nav" id="sideNav" aria-label="Main navigation">
+      <button class="nav-btn active" data-view="learn"><span class="nav-icon">⌂</span>Learn</button>
+      <button class="nav-btn" data-view="course"><span class="nav-icon">▤</span>Course path</button>
+      <button class="nav-btn" data-view="papers"><span class="nav-icon">▧</span>Research papers</button>
+      <button class="nav-btn" data-view="notebook"><span class="nav-icon">✎</span>My notebook</button>
+      <button class="nav-btn" data-view="glossary"><span class="nav-icon">Aa</span>Word guide</button>
+      <button class="nav-btn" data-view="progress"><span class="nav-icon">◷</span>My progress</button>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="side-note"><strong>Start where you are.</strong>You do not need a research background. We will build the skill one small step at a time.</div>
+    </div>
+  </aside>
+
+  <div class="main-shell">
+    <header class="topbar">
+      <div class="crumbs"><span>Research Academy</span><span>/</span><strong id="viewLabel">Learn</strong></div>
+      <div class="top-actions">
+        <span class="local-save">Saved on this device</span>
+        <button class="small-btn" id="exportBtn">Export my work</button>
+      </div>
+    </header>
+    <main id="appMain" tabindex="-1"></main>
+  </div>
+</div>
+
+<nav class="mobile-nav" id="mobileNav" aria-label="Mobile navigation">
+  <button class="active" data-view="learn"><span>⌂</span>Learn</button>
+  <button data-view="papers"><span>▧</span>Papers</button>
+  <button data-view="notebook"><span>✎</span>Notebook</button>
+  <button data-view="glossary"><span>Aa</span>Words</button>
+  <button data-view="progress"><span>◷</span>Progress</button>
+</nav>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const STORE_KEY = "research-academy-rebuild-v1";
+const course = [
+ {week:1,title:"A research paper is not a textbook",theme:"Start from zero",classes:[
+  ["What is a research paper?","Understand why researchers write papers and what a paper can tell you.","Compare a news story, a textbook page and a research paper."],
+  ["Meet the parts of a paper","Recognise the title, abstract, introduction, method, results, discussion and references.","Put paper sections in the right order."],
+  ["Your first reading method","Use LOOK, FIND, EXPLAIN, CHECK and QUESTION.","Try the method on a short, friendly example."]]},
+ {week:2,title:"Find the story inside the paper",theme:"Understand the research story",classes:[
+  ["The research problem","Separate a broad topic from the exact problem being studied.","Find the problem in four short examples."],
+  ["The research question","Turn a broad topic into one clear question that can be answered.","Rewrite vague questions."],
+  ["Claim, evidence and conclusion","Understand that a claim needs evidence.","Match claims to the evidence that supports them."]]},
+ {week:3,title:"Read without knowing every word",theme:"Handle difficult parts",classes:[
+  ["Unknown words","Decide which words matter now and which can wait.","Build a small glossary from an abstract."],
+  ["Scary maths","Find what an equation is doing before trying to solve it.","Label the inputs, output and purpose of an equation."],
+  ["Tables and graphs","Read labels, axes, comparisons and captions.","Explain three simple charts in everyday words."]]},
+ {week:4,title:"Meet machine learning",theme:"Your first AI paper",classes:[
+  ["What is a model?","Understand input, model and prediction.","Follow an everyday prediction example."],
+  ["Training, testing and generalisation","Understand why a model must be tested on new examples.","Sort examples into training and test data."],
+  ["Read your first ML paper","Use the full reading worksheet on selected parts of XGBoost.","Complete a guided first reading."]]},
+ {week:5,title:"How researchers compare models",theme:"Read results fairly",classes:[
+  ["What is a baseline?","Understand why a new method needs a fair comparison.","Choose a useful baseline."],
+  ["What is a metric?","Understand accuracy, precision, recall, F1 and error at a basic level.","Match a question to a metric."],
+  ["Read a results table","Work out what a table shows and what it does not show.","Annotate one XGBoost results table."]]},
+ {week:6,title:"Understand model explanations",theme:"Interpretability",classes:[
+  ["Why explanations matter","Separate a model's prediction from an explanation of that prediction.","Discuss a simple prediction example."],
+  ["SHAP in plain English","Understand the idea of feature contribution.","Explain why one feature may push a prediction up or down."],
+  ["Check an explanation claim","Ask whether the evidence supports the authors' explanation.","Review a short section from the SHAP paper."]]},
+ {week:7,title:"Neural networks without fear",theme:"Learn the main idea first",classes:[
+  ["Neural networks in pictures","Understand layers as steps that change information.","Trace information through a tiny network."],
+  ["Loss and learning","Understand what a model tries to reduce during training.","Follow a simple error example."],
+  ["Read the Adam paper","Find the problem, main idea and evidence without deriving every equation.","Mark the job of one important equation."]]},
+ {week:8,title:"Read deep-learning papers",theme:"Architecture and evidence",classes:[
+  ["Why deep networks can be hard to train","Understand the problem that ResNet addresses.","Explain the problem using a simple analogy."],
+  ["Residual connections","Understand the central ResNet idea visually.","Trace a shortcut connection."],
+  ["Read a computer-vision paper","Read architecture diagrams and benchmark tables.","Complete a guided ResNet paper pass."]]},
+ {week:9,title:"Understand Transformers",theme:"Attention before equations",classes:[
+  ["What is attention?","Understand how one part of an input can focus on another.","Use a short sentence example."],
+  ["Query, key and value","Understand the roles of query, key and value before matrix maths.","Match each term to its job."],
+  ["Read Attention Is All You Need","Find the main contribution, architecture and evidence.","Complete a two-pass reading."]]},
+ {week:10,title:"From Transformers to language models",theme:"Follow ideas across papers",classes:[
+  ["Pre-training and fine-tuning","Understand the two-stage learning idea.","Explain it using a learning analogy."],
+  ["Read BERT","Identify its architecture, tasks and experiments.","Annotate the abstract and results."],
+  ["Compare two papers","Explain how a later paper builds on an earlier one.","Compare the Transformer and BERT papers."]]},
+ {week:11,title:"Data science and Big Data",theme:"Understand large-scale data work",classes:[
+  ["When one computer is not enough","Understand why work is split across computers.","Split a simple task into smaller jobs."],
+  ["MapReduce","Understand map, group and reduce.","Work through a word-count example."],
+  ["Spark and resilient data","Understand why repeated data work needs a different approach.","Compare MapReduce and Spark."]]},
+ {week:12,title:"Think like a researcher",theme:"Read independently",classes:[
+  ["Find limitations","Understand why a good result does not prove everything.","Find what a paper cannot prove."],
+  ["Write a paper review","Create a clear, fair one-page review.","Review a paper using the worksheet."],
+  ["I can read this paper","Read and explain a new paper independently.","Present a 200–300 word explanation and one next question."]]}
+];
+const papers = [
+ {title:"How to Read a Paper",authors:"S. Keshav · 2007",kind:"Reading guide",status:"Practical paper-reading guide",why:"Learn a three-pass approach before reading technical AI papers.",url:"https://web.stanford.edu/class/cs114/reading-keshav.pdf",week:"Week 2"},
+ {title:"XGBoost: A Scalable Tree Boosting System",authors:"T. Chen & C. Guestrin · 2016",kind:"Machine learning",status:"Peer-reviewed conference paper · open version",why:"A first ML paper for finding the problem, method, benchmarks and results.",url:"https://arxiv.org/pdf/1603.02754",week:"Week 4"},
+ {title:"A Unified Approach to Interpreting Model Predictions",authors:"S. Lundberg & S. Lee · 2017",kind:"Explainable AI",status:"Peer-reviewed NeurIPS paper",why:"Learn how researchers explain the features behind a prediction.",url:"https://proceedings.neurips.cc/paper/2017/file/8a20a8621978632d76c43dfd28b67767-Paper.pdf",week:"Week 6"},
+ {title:"Adam: A Method for Stochastic Optimization",authors:"D. Kingma & J. Ba · 2015",kind:"Deep learning",status:"ICLR conference paper · open preprint version",why:"Practise understanding what an equation does before deriving it.",url:"https://arxiv.org/pdf/1412.6980",week:"Week 7"},
+ {title:"Deep Residual Learning for Image Recognition",authors:"K. He et al. · 2016",kind:"Computer vision",status:"Peer-reviewed CVPR paper",why:"A visual architecture idea that can be understood before every technical detail.",url:"https://openaccess.thecvf.com/content_cvpr_2016/papers/He_Deep_Residual_Learning_CVPR_2016_paper.pdf",week:"Week 8"},
+ {title:"Attention Is All You Need",authors:"A. Vaswani et al. · 2017",kind:"Transformers",status:"Peer-reviewed NeurIPS paper",why:"Meet the Transformer architecture and learn to identify its main contribution.",url:"https://papers.nips.cc/paper/2017/file/3f5ee243547dee91fbd053c1c4a845aa-Paper.pdf",week:"Week 9"},
+ {title:"BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding",authors:"J. Devlin et al. · 2019",kind:"Language models",status:"Peer-reviewed NAACL paper",why:"Compare a later paper with the Transformer paper it builds on.",url:"https://aclanthology.org/N19-1423.pdf",week:"Week 10"},
+ {title:"MapReduce: Simplified Data Processing on Large Clusters",authors:"J. Dean & S. Ghemawat · 2004",kind:"Big Data",status:"Published systems research paper",why:"Understand how a large task can be split across many computers.",url:"https://research.google/pubs/mapreduce-simplified-data-processing-on-large-clusters/",week:"Week 11"},
+ {title:"Resilient Distributed Datasets",authors:"M. Zaharia et al. · 2012",kind:"Big Data / Spark",status:"Peer-reviewed NSDI paper",why:"Understand the research idea behind Spark's resilient distributed datasets.",url:"https://www.usenix.org/system/files/conference/nsdi12/nsdi12-final138.pdf",week:"Week 11"},
+ {title:"Hidden Technical Debt in Machine Learning Systems",authors:"D. Sculley et al. · 2015",kind:"ML systems",status:"Peer-reviewed NeurIPS paper",why:"Ask what can go wrong when a model is used in a real system.",url:"https://papers.nips.cc/paper/5656-hidden-technical-debt-in-machine-learning-systems.pdf",week:"Week 12"},
+ {title:"TabNet: Attentive Interpretable Tabular Learning",authors:"S. Arik & T. Pfister · 2021",kind:"Data science",status:"Peer-reviewed AAAI paper",why:"Optional extra reading for tabular data and interpretable learning.",url:"https://cdn.aaai.org/ojs/16826/16826-13-20320-1-2-20210518.pdf",week:"Extra"}
+];
+const glossary = [
+ ["Abstract","A short summary near the start of a paper. It tells you what the study is about."],
+ ["Baseline","A method used as a fair point of comparison."],
+ ["Claim","Something the authors say is true or has happened. A good claim needs evidence."],
+ ["Conclusion","The main message the authors take from their results."],
+ ["Dataset","A collection of information or examples used in a study."],
+ ["Evidence","Information or results that help support a claim."],
+ ["Feature","One piece of information used by a model, such as age or price."],
+ ["Generalisation","How well a model works on new examples it did not train on."],
+ ["Hypothesis","A clear idea or prediction that a study can test."],
+ ["Limitation","A weakness or boundary of a study. It tells you what the result cannot prove."],
+ ["Method","What the researchers did and how they did it."],
+ ["Metric","A measurement used to judge a result, such as accuracy."],
+ ["Model","A system that learns patterns from examples and makes predictions or decisions."],
+ ["Peer-reviewed","Checked by other experts before publication in a journal or conference."],
+ ["Preprint","A paper shared before formal peer review or publication."],
+ ["Research question","The exact question the researchers want to answer."],
+ ["Result","What the researchers found after doing the study."],
+ ["Training data","Examples used to teach a machine-learning model."],
+ ["Test data","Separate examples used to check how well a trained model works."],
+ ["Variable","Something in a study that can change or be measured."]
+];
+function freshState(){return {view:"learn",lessonStep:0,completed:[],lessonNote:"",notebook:{title:"",authors:"",problem:"",question:"",method:"",evidence:"",result:"",limits:"",unknowns:"",explanation:"",nextQuestion:""},practice:"",confidence:0};}
+let state;
+try{state={...freshState(),...(JSON.parse(localStorage.getItem(STORE_KEY)||"{}"))};state.notebook={...freshState().notebook,...(state.notebook||{})};}catch(e){state=freshState();}
+function save(){try{localStorage.setItem(STORE_KEY,JSON.stringify(state));}catch(e){toast("Browser storage is unavailable. Export your work to keep a copy.");}}
+function toast(msg){const el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");setTimeout(()=>el.classList.remove("show"),2200);}
+function setView(view){state.view=view;save();render();window.scrollTo({top:0,behavior:"smooth"});}
+function markComplete(){if(!state.completed.includes(1))state.completed.push(1);save();toast("Lesson 1 completed. Well done.");setView("learn");}
+function startLesson(){state.view="lesson";state.lessonStep=0;save();render();}
+function exportWork(){
+ const payload={product:"Research Academy",exportedAt:new Date().toISOString(),completedLessons:state.completed,lesson1Notes:state.lessonNote,readingWorksheet:state.notebook,confidence:state.confidence};
+ const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+ const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="research-academy-my-work.json";a.click();URL.revokeObjectURL(a.href);toast("Your work has been exported.");
+}
+document.getElementById("exportBtn").addEventListener("click",exportWork);
+document.querySelectorAll("[data-view]").forEach(b=>b.addEventListener("click",()=>setView(b.dataset.view)));
+function updateNav(){
+ document.querySelectorAll(".nav-btn,.mobile-nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===state.view || (state.view==="lesson"&&b.dataset.view==="learn")));
+ const labels={learn:"Learn",lesson:"Lesson 1",course:"Course path",papers:"Research papers",notebook:"My notebook",glossary:"Word guide",progress:"My progress",classinfo:"Class outline"};
+ document.getElementById("viewLabel").textContent=labels[state.view]||"Learn";
+}
+function render(){updateNav();const root=document.getElementById("appMain");
+ if(state.view==="learn")root.innerHTML=homeView();
+ else if(state.view==="lesson")root.innerHTML=lessonView();
+ else if(state.view==="course")root.innerHTML=courseView();
+ else if(state.view==="papers")root.innerHTML=papersView();
+ else if(state.view==="notebook")root.innerHTML=notebookView();
+ else if(state.view==="glossary")root.innerHTML=glossaryView();
+ else if(state.view==="progress")root.innerHTML=progressView();
+ else if(state.view==="classinfo")root.innerHTML=classInfoView();
+ bindDynamic();
+}
+function homeView(){
+ const done=state.completed.includes(1);
+ return `
+ <section class="hero">
+  <div class="hero-copy">
+   <p class="kicker">A beginner's guide · No research experience needed</p>
+   <h1>Research papers are <span>learnable.</span></h1>
+   <p>You do not need to be a scientist to begin. Learn what to look for, what can wait, and how to explain a difficult paper in your own words.</p>
+   <button class="primary-btn" data-action="start">${done?"Review your first lesson":"Start with Lesson 1"}</button>
+  </div>
+  <div class="paper-demo" aria-label="Example of a research paper with highlighted parts">
+   <div class="paper-demo-top"><span>YOUR FIRST PAPER</span><span>FIELD NOTE 001</span></div>
+   <h3>Does music change how students perform on a test?</h3>
+   <p>Researchers asked 100 students to study in silence or with music. Both groups took the same test. The silent group scored 78 on average; the music group scored 74.</p>
+   <div class="paper-note"><b>Look for:</b><span><span class="marker">the question</span>, what they did, what they found, and what they could not prove.</span></div>
+  </div>
+ </section>
+ <div class="section-heading"><div><h2>Your next step</h2><p>One clear lesson. One small step at a time.</p></div><button class="text-link" data-action="course">See the full course</button></div>
+ <section class="continue-strip">
+  <div class="continue-left"><div class="lesson-number">01</div><div><p class="eyebrow">Week 1 · Class 1 ${done?"· Completed":""}</p><h3>What is a research paper?</h3><p>Learn why research papers exist and how they are different from textbooks.</p></div></div>
+  <button class="primary-btn" data-action="start">${done?"Read again":"Begin lesson"}</button>
+ </section>
+ <div class="home-columns">
+  <section class="path-panel">
+   <div class="section-heading" style="margin:0"><div><h2>Your learning route</h2><p>Three months, from zero to independent reading.</p></div></div>
+   <div class="path-list">
+    <div class="path-row current"><div class="path-dot">1</div><div><strong>Learn how papers work</strong><span>Weeks 1–4 · The basics, vocabulary, graphs and your first ML paper</span></div><span class="path-state">START HERE</span></div>
+    <div class="path-row"><div class="path-dot">2</div><div><strong>Read AI and ML research</strong><span>Weeks 5–8 · Experiments, metrics, explanations and neural networks</span></div><span class="path-state">NEXT</span></div>
+    <div class="path-row"><div class="path-dot">3</div><div><strong>Read modern AI and Big Data</strong><span>Weeks 9–12 · Transformers, BERT, Spark and your final paper</span></div><span class="path-state">LATER</span></div>
+   </div>
+  </section>
+  <section class="practice-panel">
+   <p class="eyebrow">A tiny first thought</p>
+   <h3>Research starts with a question.</h3>
+   <p>Imagine you want to know whether music helps students study. What would you need to compare?</p>
+   <div class="practice-question">Write one short idea. There is no perfect answer yet.</div>
+   <div class="practice-answer"><input id="homePractice" aria-label="Your first research idea" placeholder="I would compare..."><button class="secondary-btn" data-action="savePractice">Save</button></div>
+  </section>
+ </div>
+ <p class="footer-note">Your notes and progress stay in this browser on this device. Use “Export my work” to keep a backup.</p>`;
+}
+const stepNames=["Welcome","The idea","Six things","See an example","Try it","Explain it"];
+function lessonView(){
+ const step=state.lessonStep||0;
+ return `
+ <div class="lesson-topline"><span>WEEK 1 / CLASS 1</span><span>About 20–30 minutes · You can pause any time</span></div>
+ <div class="lesson-progress"><span style="width:${((step+1)/6)*100}%"></span></div>
+ <div class="lesson-layout">
+  <article class="lesson-main">
+   <div class="step-tabs">${stepNames.map((n,i)=>`<button class="step-tab ${i===step?"active":""}" data-step="${i}">${i+1}. ${n}</button>`).join("")}</div>
+   <div class="lesson-content">${lessonStepContent(step)}</div>
+   <div class="lesson-actions">
+    <button class="secondary-btn" data-action="previousStep" ${step===0?"disabled":""}>Back</button>
+    ${step<5?`<button class="primary-btn" data-action="nextStep">Continue</button>`:`<button class="primary-btn" data-action="finishLesson">Finish lesson</button>`}
+   </div>
+  </article>
+  <aside class="lesson-aside">
+   <div class="aside-box"><h3>What you will learn</h3><ul><li>What a research paper is</li><li>Why researchers write papers</li><li>Six things to look for</li></ul></div>
+   <div class="aside-box help-note"><h3>Remember</h3><p>You do not have to understand every word today. Your first job is to learn where to look.</p></div>
+   <div class="aside-box"><h3>Your progress</h3><p>Step ${step+1} of 6. Your answers are saved on this device.</p></div>
+  </aside>
+ </div>`;
+}
+function lessonStepContent(step){
+ if(step===0)return `<p class="eyebrow">First, take a breath</p><h1>This paper looks difficult. That is normal.</h1><p class="lesson-lead">Today, you are not expected to understand a real scientific paper. First, you will learn what a paper is and what you should look for.</p>
+ <div class="callout"><p><strong>The most important idea:</strong> You do not need to understand every word in a research paper. You need to learn how to find the important parts.</p></div>
+ <h2>By the end of this lesson, you can…</h2><div class="six-grid"><div class="six-item"><b>Know what it is</b><span>Explain what a research paper does.</span></div><div class="six-item"><b>Know why it exists</b><span>Understand why researchers share their work.</span></div><div class="six-item"><b>Find the main story</b><span>Look for the question, method and result.</span></div><div class="six-item"><b>Start with confidence</b><span>Know that confusion is a normal first step.</span></div></div>
+ <p>Take your time. You can stop after any part and come back later.</p>`;
+ if(step===1)return `<p class="eyebrow">Start with something familiar</p><h2>What is a research paper?</h2><p>A research paper is a written report about a study or investigation. It tells readers what the researchers wanted to find out, what they did, what they found, and what the result may mean.</p>
+ <div class="simple-compare"><div class="compare-item"><h3>A textbook</h3><p>Usually teaches knowledge that is already known and accepted. It helps you learn a subject.</p></div><div class="compare-item"><h3>A research paper</h3><p>Usually shares new work, a new result, a new method, or a new way to study a problem.</p></div></div>
+ <div class="callout"><p><strong>Everyday example:</strong> A textbook may explain how plants grow. A research paper may report an experiment that tests whether a new type of light helps a plant grow faster.</p></div>
+ <p>Researchers write papers so other people can check their work, learn from it, question it, and build on it.</p>`;
+ if(step===2)return `<p class="eyebrow">A simple map</p><h2>Find these six things in a paper</h2><p>Do not try to understand every sentence. First, look for these six parts of the story.</p>
+ <div class="six-grid">
+  <div class="six-item"><b>1. Problem</b><span>What issue or gap made the researchers do this work?</span></div>
+  <div class="six-item"><b>2. Question</b><span>What exactly did they want to find out?</span></div>
+  <div class="six-item"><b>3. Method</b><span>What did they do to investigate the question?</span></div>
+  <div class="six-item"><b>4. Evidence</b><span>What information, tests or observations did they collect?</span></div>
+  <div class="six-item"><b>5. Result</b><span>What did they find?</span></div>
+  <div class="six-item"><b>6. Limitation</b><span>What could the study not prove or test?</span></div>
+ </div>
+ <p>These six things help you understand the research story. Later, you will learn how to check whether the evidence really supports the result.</p>`;
+ if(step===3)return `<p class="eyebrow">Watch the teacher do it</p><h2>One small example, fully explained</h2><p>Read this short example. It is written in simple English, but it follows the same pattern as a research study.</p>
+ <div class="example-paper"><div class="paper-label">A made-up research example</div><p>Researchers wanted to know whether listening to music while studying changes test scores. They asked 100 students to study either in silence or with music. Both groups took the same test. The silent group scored an average of 78 and the music group scored 74. The researchers said the study was small and did not test different kinds of music.</p></div>
+ <div class="six-grid">
+  <div class="six-item"><b>Problem</b><span>Does music affect study performance?</span></div>
+  <div class="six-item"><b>Method</b><span>100 students studied in two different conditions.</span></div>
+  <div class="six-item"><b>Evidence</b><span>The students' test scores.</span></div>
+  <div class="six-item"><b>Result</b><span>The silence group scored 4 points higher on average.</span></div>
+  <div class="six-item"><b>Limitation</b><span>The study was small and did not test different types of music.</span></div>
+  <div class="six-item"><b>Question</b><span>Does this prove music always makes studying worse? No.</span></div>
+ </div>
+ <div class="callout"><p><strong>Important:</strong> This example does not prove that silence is always better. It only tells us what happened in this small example. A research result has limits.</p></div>`;
+ if(step===4)return `<p class="eyebrow">Your turn</p><h2>Can you find the research question?</h2><p>Read the three choices. Choose the one that asks what the researchers want to find out.</p>
+ <div class="quiz-options">
+  <label class="quiz-option"><input type="radio" name="quiz" value="a"> <span><strong>A.</strong> Artificial intelligence</span></label>
+  <label class="quiz-option"><input type="radio" name="quiz" value="b"> <span><strong>B.</strong> Does listening to music while studying affect students' test scores?</span></label>
+  <label class="quiz-option"><input type="radio" name="quiz" value="c"> <span><strong>C.</strong> One group scored 78 on the test.</span></label>
+ </div>
+ <button class="secondary-btn" data-action="checkQuiz">Check my answer</button><div class="feedback" id="quizFeedback" role="status"></div>
+ <div class="callout"><p><strong>Tip:</strong> A topic is broad, like “music”. A research question is more exact, like “Does music change test scores?”</p></div>`;
+ return `<p class="eyebrow">Make it your own</p><h2>Explain it to a friend</h2><p>Imagine a friend asks, “What is a research paper?” Explain it in your own simple words. Do not copy the lesson. There is no need to use difficult words.</p>
+ <textarea class="write-box" id="lessonNote" placeholder="A research paper is...">${escapeHtml(state.lessonNote||"")}</textarea>
+ <div class="callout"><p><strong>Check your explanation:</strong> Did you say that a research paper reports a study or investigation? Did you mention that it tells us what researchers did and found?</p></div>
+ <p>Save your explanation. You can return to it later in My notebook.</p>`;
+}
+function courseView(){
+ let html=`<div class="page-title"><p class="kicker">12 weeks · 36 classes</p><h1>Your course path</h1><p>We start with the basics of research reading. Only after that do we move into AI, Machine Learning and Data Science papers.</p></div>`;
+ course.forEach(w=>{
+  html+=`<section class="course-week"><div class="week-head"><div><h3>Week ${w.week} — ${w.title}</h3><p>${w.theme}</p></div><span class="week-tag">${w.week<=4?"FOUNDATION":w.week<=8?"AI & ML":"ADVANCED READING"}</span></div>`;
+  w.classes.forEach((c,i)=>{
+   const n=(w.week-1)*3+i+1;
+   html+=`<div class="class-row ${n===1?"ready":""}"><div class="class-index">${String(n).padStart(2,"0")}</div><div><strong>${c[0]}</strong><small>${c[1]}</small></div><button data-class="${n}">${n===1?"Start lesson":"View outline"}</button></div>`;
+  });
+  html+=`</section>`;
+ });
+ return html;
+}
+function classInfoView(){
+ const n=state.selectedClass||1,w=course[Math.floor((n-1)/3)],c=w.classes[(n-1)%3];
+ return `<div class="page-title"><p class="kicker">WEEK ${w.week} · CLASS ${n}</p><h1>${c[0]}</h1><p>${c[1]}</p></div>
+ <section class="note-form"><p class="eyebrow">What you will do</p><h2 style="font-size:18px;margin:4px 0 8px">Practice activity</h2><p style="font-size:13px;color:var(--muted)">${c[2]}</p>
+ ${n===1?`<button class="primary-btn" data-action="start">Start this lesson</button>`:`<div class="callout"><p>This class is part of your learning path. The first guided lesson is ready now. Start there to build the foundation before moving forward.</p></div><button class="primary-btn" data-action="start">Start with Class 1</button>`}
+ <button class="secondary-btn" style="margin-left:8px" data-action="course">Back to course path</button></section>`;
+}
+function papersView(){
+ return `<div class="page-title"><p class="kicker">OPEN READING LIST</p><h1>Research papers, one step at a time</h1><p>These papers are introduced slowly. You do not need to read all of them now. Start with the reading guide, then follow the course.</p></div>
+ <div class="callout"><p><strong>Before opening a paper:</strong> Read the title, abstract, headings, figures and conclusion first. Do not force yourself to read every line on the first pass.</p></div>
+ <section class="paper-list">${papers.map(p=>`<article class="paper-row"><div><h3>${p.title}</h3><p>${p.authors} · ${p.why}</p><div class="paper-meta"><span class="paper-tag">${p.kind}</span><span class="paper-tag">${p.status}</span><span class="paper-tag">${p.week}</span></div></div><a href="${p.url}" target="_blank" rel="noopener noreferrer">Open paper ↗</a></article>`).join("")}</section>
+ <p class="footer-note">Paper links lead to public copies or publisher pages. Always check the publication details and version shown on the paper itself.</p>`;
+}
+function notebookView(){
+ const n=state.notebook;
+ return `<div class="page-title"><p class="kicker">YOUR PERSONAL RESEARCH NOTES</p><h1>My notebook</h1><p>Use this page whenever you read a paper. You do not have to fill every box at once. Your answers are saved on this device.</p></div>
+ <section class="note-form"><div class="form-grid">
+  ${field("Paper title","title",n.title,"e.g. Attention Is All You Need")}
+  ${field("Authors and year","authors",n.authors,"Names and year")}
+  ${field("Problem","problem",n.problem,"What issue are the researchers studying?")}
+  ${field("Research question","question",n.question,"What exactly do they want to find out?")}
+  ${field("Method","method",n.method,"What did the researchers do?")}
+  ${field("Evidence","evidence",n.evidence,"What information or tests did they use?")}
+  ${field("Main result","result",n.result,"What did they find?")}
+  ${field("Limitations","limits",n.limits,"What does the paper not prove?")}
+  ${field("Unknown words or ideas","unknowns",n.unknowns,"What do you need to learn next?")}
+  ${field("Explain it in your own words","explanation",n.explanation,"Explain the paper as if your friend has never studied this subject.",true)}
+  ${field("My next question","nextQuestion",n.nextQuestion,"What would you investigate next?",true)}
+ </div><div class="form-actions"><button class="primary-btn" data-action="saveNotebook">Save notebook</button><button class="secondary-btn" data-action="print">Print notebook</button><button class="secondary-btn" data-action="clearNotebook">Clear fields</button></div></section>`;
+}
+function field(label,key,value,placeholder,full=false){return `<div class="field ${full?"full":""}"><label for="nb-${key}">${label}</label>${full?`<textarea id="nb-${key}" data-notebook="${key}" placeholder="${placeholder}">${escapeHtml(value||"")}</textarea>`:`<input id="nb-${key}" data-notebook="${key}" value="${escapeHtml(value||"")}" placeholder="${placeholder}">`}</div>`;}
+function glossaryView(){
+ return `<div class="page-title"><p class="kicker">PLAIN ENGLISH</p><h1>Word guide</h1><p>Research words explained in everyday language. Search for a word that feels unfamiliar.</p></div>
+ <input class="glossary-search" id="glossarySearch" placeholder="Search a word, e.g. dataset or evidence" aria-label="Search glossary">
+ <div class="glossary-list" id="glossaryList">${glossary.map(g=>`<div class="term" data-term="${g[0].toLowerCase()} ${g[1].toLowerCase()}"><strong>${g[0]}</strong><p>${g[1]}</p></div>`).join("")}</div>`;
+}
+function progressView(){
+ const done=state.completed.length;
+ const pct=Math.round(done/36*100);
+ return `<div class="page-title"><p class="kicker">YOUR LEARNING RECORD</p><h1>My progress</h1><p>Progress is not about speed. It is about needing less help and understanding more each time you read.</p></div>
+ <section class="progress-banner"><div><h2>${done? "You have started. Keep going.":"Your first step is waiting."}</h2><p>${done?"You completed the first guided lesson.":"Begin with Lesson 1. It is designed for a complete beginner."}</p></div><div class="progress-count">${pct}%</div></section>
+ <div class="progress-track"><span style="width:${pct}%"></span></div><p style="font-size:11px;color:var(--muted)">${done} of 36 classes completed · Your reading skill will grow with practice.</p>
+ <div class="section-heading"><div><h2>How your reading skill grows</h2><p>These are the stages we are working towards.</p></div></div>
+ <div class="skill-levels">
+  <div class="skill-level active"><b>1 · Follow an example</b><p>Watch a teacher find the important parts.</p></div>
+  <div class="skill-level"><b>2 · Use hints</b><p>Try it yourself with a little help.</p></div>
+  <div class="skill-level"><b>3 · Work alone</b><p>Complete the paper worksheet independently.</p></div>
+  <div class="skill-level"><b>4 · Explain and question</b><p>Explain a paper and judge its evidence.</p></div>
+ </div>
+ <div class="section-heading"><div><h2>Completed lessons</h2><p>Your saved learning record.</p></div></div>
+ ${done?`<div class="continue-strip"><div><p class="eyebrow">COMPLETED</p><h3>Week 1 · Class 1 — What is a research paper?</h3><p>Your first guided lesson.</p></div><span style="color:var(--green);font-weight:800">✓ Done</span></div>`:`<div class="empty-state">No completed lessons yet. That is completely fine. Start with Lesson 1.</div>`}
+ <div style="margin-top:18px"><button class="secondary-btn" data-action="resetProgress">Reset my progress</button></div>`;
+}
+function escapeHtml(str){return String(str??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function bindDynamic(){
+ document.querySelectorAll("[data-action]").forEach(b=>b.addEventListener("click",()=>{
+  const a=b.dataset.action;
+  if(a==="start")startLesson();
+  if(a==="course")setView("course");
+  if(a==="nextStep"){if(state.lessonStep<5)state.lessonStep++;save();render();}
+  if(a==="previousStep"){if(state.lessonStep>0)state.lessonStep--;save();render();}
+  if(a==="finishLesson"){const el=document.getElementById("lessonNote");if(el)state.lessonNote=el.value;save();markComplete();}
+  if(a==="checkQuiz"){const picked=document.querySelector('input[name="quiz"]:checked');const fb=document.getElementById("quizFeedback");if(!picked){fb.textContent="Choose one answer first. It is okay to guess.";fb.className="feedback show try";}else if(picked.value==="b"){fb.textContent="Correct. A research question is the exact thing the researchers want to find out. “Artificial intelligence” is only a topic, and a test score is a result.";fb.className="feedback show good";}else{fb.textContent="Not quite. Look for the choice that asks a clear question. A topic is too broad, and a score is a result.";fb.className="feedback show try";}}
+  if(a==="savePractice"){state.practice=document.getElementById("homePractice")?.value||"";save();toast("Your idea has been saved.");}
+  if(a==="saveNotebook"){document.querySelectorAll("[data-notebook]").forEach(el=>state.notebook[el.dataset.notebook]=el.value);save();toast("Notebook saved on this device.");}
+  if(a==="print"){document.querySelectorAll("[data-notebook]").forEach(el=>state.notebook[el.dataset.notebook]=el.value);save();window.print();}
+  if(a==="clearNotebook"){if(confirm("Clear all notebook fields?")){state.notebook=freshState().notebook;save();render();toast("Notebook fields cleared.");}}
+  if(a==="resetProgress"){if(confirm("Reset completed lessons and saved progress? Your notebook will stay saved.")){state.completed=[];state.lessonStep=0;save();render();toast("Progress reset.");}}
+ }));
+ document.querySelectorAll("[data-step]").forEach(b=>b.addEventListener("click",()=>{const el=document.getElementById("lessonNote");if(el)state.lessonNote=el.value;state.lessonStep=Number(b.dataset.step);save();render();}));
+ document.querySelectorAll("[data-class]").forEach(b=>b.addEventListener("click",()=>{state.selectedClass=Number(b.dataset.class);state.view="classinfo";save();render();}));
+ document.querySelectorAll("[data-notebook]").forEach(el=>el.addEventListener("input",()=>{state.notebook[el.dataset.notebook]=el.value;save();}));
+ const gs=document.getElementById("glossarySearch");if(gs)gs.addEventListener("input",()=>{const q=gs.value.toLowerCase();document.querySelectorAll(".term").forEach(t=>t.style.display=t.dataset.term.includes(q)?"":"none");});
+ const hp=document.getElementById("homePractice");if(hp)hp.value=state.practice||"";
+ const ln=document.getElementById("lessonNote");if(ln)ln.addEventListener("input",()=>{state.lessonNote=ln.value;save();});
+}
+render();
+</script>
+</body>
+</html>
